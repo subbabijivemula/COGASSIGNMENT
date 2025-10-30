@@ -23,10 +23,10 @@ provider "azurerm" {
 module "network" {
   source              = "./modules/network"
   region              = var.region
-  vnet_name           = "main-vnet"
-  address_space       = ["10.0.0.0/16"]
-  subnet_name         = "subnet-main"
-  subnet_prefixes     = ["10.0.1.0/24"]
+  vnet_name           = var.vnet_name
+  address_space       = var.address_space
+  subnet_name         = var.subnet_name
+  subnet_prefixes     = var.subnet_prefixes
   tags                = var.tags
 }
 
@@ -37,9 +37,9 @@ module "network" {
 module "nsg" {
   source              = "./modules/nsg"
   region              = var.region
-  nsg_name            = "main-nsg"
+  nsg_name            = var.nsg_name
   subnet_id           = module.network.subnet_id
-  allowed_ports       = [22, 80, 443]
+  allowed_ports       = var.allowed_ports
   tags                = var.tags
 }
 
@@ -50,11 +50,11 @@ module "nsg" {
 module "vm" {
   source              = "./modules/vm"
   region              = var.region
-  vm_name             = "main-vm"
+  vm_name             = var.vm_name
   vm_size             = var.vm_size
   subnet_id           = module.network.subnet_id
   nsg_id              = module.nsg.nsg_id
-  admin_username      = "azureuser"
+  admin_username      = var.admin_username
   admin_password      = var.admin_password
   tags                = var.tags
 }
