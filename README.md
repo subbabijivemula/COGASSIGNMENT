@@ -1,2 +1,2 @@
-# COGASS
+# COGAssignment
 Assessment for Cognizant
