@@ -1,0 +1,85 @@
+#######################################################
+# Root Module: Full Environment Deployment
+#######################################################
+
+terraform {
+  required_version = ">= 1.6.0"
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+#######################################################
+# Networking Module
+#######################################################
+
+module "network" {
+  source              = "./modules/network"
+  region              = var.region
+  vnet_name           = "main-vnet"
+  address_space       = ["10.0.0.0/16"]
+  subnet_name         = "subnet-main"
+  subnet_prefixes     = ["10.0.1.0/24"]
+  tags                = var.tags
+}
+
+#######################################################
+# Network Security Group Module
+#######################################################
+
+module "nsg" {
+  source              = "./modules/nsg"
+  region              = var.region
+  nsg_name            = "main-nsg"
+  subnet_id           = module.network.subnet_id
+  allowed_ports       = [22, 80, 443]
+  tags                = var.tags
+}
+
+#######################################################
+# Virtual Machine Module
+#######################################################
+
+module "vm" {
+  source              = "./modules/vm"
+  region              = var.region
+  vm_name             = "main-vm"
+  vm_size             = var.vm_size
+  subnet_id           = module.network.subnet_id
+  nsg_id              = module.nsg.nsg_id
+  admin_username      = "azureuser"
+  admin_password      = var.admin_password
+  tags                = var.tags
+}
+
+#######################################################
+# Patch Management Module
+#######################################################
+
+module "patch_management" {
+  source              = "./modules/patch_management"
+  region              = var.region
+  vm_id               = module.vm.vm_id
+  schedule_day        = var.patch_schedule_day
+  schedule_time       = var.patch_schedule_time
+  tags                = var.tags
+}
+
+#######################################################
+# Outputs
+#######################################################
+
+output "vm_public_ip" {
+  value = module.vm.public_ip
+}
+
+output "subnet_id" {
+  value = module.network.subnet_id
+}

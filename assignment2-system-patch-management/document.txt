@@ -1,0 +1,13 @@
+
+-->Monitoring Patch Compliance
+After deployment, you can monitor patch compliance using Azure Portal or Log Analytics queries.
+1. Using Azure Portal
+    a. Go to Automation Account → Update Management.
+    b. View :
+        Missing updates
+        Deployment schedules
+        Last deployment results
+        
+2. Use Log Analytics Queries:
+    UpdateSummary
+    | summarize by Computer, MissingCritical, MissingSecurity, LastScanTime
